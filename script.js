@@ -13,21 +13,22 @@
   document.getElementById('gotItBtn').addEventListener('click', () => {
     document.getElementById('welcomeModal').style.display = 'none';
   });
-const editToggle = document.getElementById('editToggle');
-  const originalTextDisplay = document.getElementById('originalTextDisplay');
-  const originalTextEdit = document.getElementById('originalTextEdit');
-  const refreshTranslation = document.getElementById('refreshTranslation');
+
   const startBtn = document.getElementById('startBtn');
   const btnText = document.getElementById('btnText');
   const micIcon = document.getElementById('micIcon');
   const statusIndicator = document.getElementById('statusIndicator');
-  const originalTextDiv = document.getElementById('originalText');
+  const originalTextDiv = document.getElementById('originalTextDisplay');
   const translatedTextDiv = document.getElementById('translatedText');
   const searchResultsDiv = document.getElementById('searchResults');
   const sourceLangSelect = document.getElementById('sourceLang');
   const targetLangSelect = document.getElementById('targetLang');
   const clearBtn = document.getElementById('clearBtn');
   const talkbackToggle = document.getElementById('talkbackToggle');
+   const editToggle = document.getElementById('editToggle');
+  const originalTextDisplay = document.getElementById('originalTextDisplay');
+  const originalTextEdit = document.getElementById('originalTextEdit');
+  const refreshTranslation = document.getElementById('refreshTranslation');
 
   let recognition;
   let isRecognizing = false;
@@ -39,7 +40,7 @@ const editToggle = document.getElementById('editToggle');
   speechSynthesis.onvoiceschanged = () => {
     voices = speechSynthesis.getVoices();
   };
-   editToggle.addEventListener('click', () => {
+  editToggle.addEventListener('click', () => {
     if (originalTextEdit.classList.contains('hidden')) {
       // Switch to edit mode
       originalTextDisplay.classList.add('hidden');
@@ -89,7 +90,6 @@ const editToggle = document.getElementById('editToggle');
       editToggle.click();
     }
   });
-
   // Clear all content
   clearBtn.addEventListener('click', () => {
     originalTextDiv.innerHTML = '<span class="text-blue-200 italic">Start speaking to see your words appear here...</span>';
@@ -242,8 +242,7 @@ const editToggle = document.getElementById('editToggle');
     startRecognition();
   });
 
-  // Replace your existing recognition code with this updated version
-let finalTranscript = '';
+  let finalTranscript = '';
 let isProcessing = false;
 let mobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -367,6 +366,7 @@ function stopRecognition() {
   }
   updateUIForRecording(false);
 }
+
   function updateUIForRecording(recording) {
     isRecognizing = recording;
     
