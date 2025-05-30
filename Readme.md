@@ -11,7 +11,7 @@ A powerful web application that provides real-time speech translation and automa
 - 🎙️ **Real-time Speech Recognition** - Speak naturally and see your words appear instantly
 - 🌐 **Multi-language Translation** - Supports 12+ languages including major Indian languages
 - 📚 **Knowledge Discovery** - Automatically finds relevant Wikipedia articles
-- 🔊 **Talkback Feature** - Hear the translated text spoken back to you
+- 🔊 **Talkback Feature** - Hear the translated text spoken back to you (Experimental may not work for some languages)
 - 🎨 **Beautiful UI** - Modern glassmorphism design with smooth animations
 - ⌨️ **Keyboard Shortcuts** - Ctrl+Space to start/stop recording
 
