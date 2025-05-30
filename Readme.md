@@ -1,10 +1,10 @@
 # LinguaBridge - Real-time Speech Translation & Knowledge Discovery
-
-![LinguaBridge Screenshot](https://img.icons8.com/fluency/96/000000/translation.png)
+[fullscreen](https://linguabridge.netlify.app/screenshots/preview-image.png)
+![LinguaBridge Screenshot](https://linguabridge.netlify.app/screenshots/preview.gif)
 
 A powerful web application that provides real-time speech translation and automatically discovers relevant Wikipedia knowledge based on your conversations.
 
-[![Live Demo](https://img.shields.io/badge/-Live%20Demo-brightgreen)](https://sdasaasd.com)
+[![Live Demo](https://img.shields.io/badge/-Live%20Demo-brightgreen)](https://linguabridge.netlify.app/)
 
 ## Features
 
@@ -24,6 +24,12 @@ A powerful web application that provides real-time speech translation and automa
 5. Discover relevant Wikipedia articles automatically
 6. Toggle the **Talkback** switch to hear translations
 
+## Screenshots
+[fullscreen](https://linguabridge.netlify.app/screenshots/preview-image-fullscreen.png)
+[features](https://linguabridge.netlify.app/screenshots/preview-image-features.png)
+[translation + search ](https://linguabridge.netlify.app/screenshots/preview-image-translation+search.png)
+
+
 ## Technologies Used
 
 - **Frontend**: HTML5, CSS3, JavaScript, Tailwind CSS
@@ -36,7 +42,7 @@ A powerful web application that provides real-time speech translation and automa
 
 ## Installation
 
-No installation required! Simply visit the [live demo](https://sdasaasd.com) or:
+No installation required! Simply visit the [live demo](https://linguabridge.netlify.app/) or:
 
 1. Clone this repository:
    ```bash
