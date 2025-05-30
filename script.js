@@ -242,99 +242,131 @@ const editToggle = document.getElementById('editToggle');
     startRecognition();
   });
 
-  function startRecognition() {
-    recognition = initRecognition();
-    if (!recognition) return;
+  // Replace your existing recognition code with this updated version
+let finalTranscript = '';
+let isProcessing = false;
+let mobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // Reset displays
-    originalTextDiv.innerHTML = '<span class="text-blue-200 italic">Listening...</span>';
-    translatedTextDiv.innerHTML = '<span class="text-yellow-200 italic">Translation will appear here...</span>';
-    searchResultsDiv.innerHTML = `
-      <div class="text-center py-8">
-        <div class="text-green-200 italic">Speak to discover related articles...</div>
-      </div>
-    `;
+function startRecognition() {
+  recognition = initRecognition();
+  if (!recognition) return;
 
-    recognition.lang = sourceLangSelect.value;
+  // Reset displays
+  originalTextDiv.innerHTML = '<span class="text-blue-200 italic">Listening...</span>';
+  translatedTextDiv.innerHTML = '<span class="text-yellow-200 italic">Translation will appear here...</span>';
+  searchResultsDiv.innerHTML = `
+    <div class="text-center py-8">
+      <div class="text-green-200 italic">Speak to discover related articles...</div>
+    </div>
+  `;
 
-    try {
-      recognition.start();
-      updateUIForRecording(true);
-    } catch (error) {
-      console.error('Recognition start error:', error);
-    }
+  recognition.lang = sourceLangSelect.value;
+  finalTranscript = '';
+  isProcessing = false;
 
-    let finalTranscript = '';
-    let debounceTimer = null;
+  // Mobile-specific adjustments
+  if (mobileDevice) {
+    recognition.continuous = false; // Disable continuous mode on mobile
+    recognition.interimResults = false; // Disable interim results on mobile
+  }
 
-    recognition.onresult = async (event) => {
-      let interimTranscript = '';
-      
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript + ' ';
-        } else {
-          interimTranscript += event.results[i][0].transcript;
-        }
+  try {
+    recognition.start();
+    updateUIForRecording(true);
+  } catch (error) {
+    console.error('Recognition start error:', error);
+  }
+
+  recognition.onresult = async (event) => {
+    if (isProcessing) return;
+    isProcessing = true;
+    
+    let interimTranscript = '';
+    let currentTranscript = '';
+    
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        currentTranscript += event.results[i][0].transcript;
+      } else {
+        interimTranscript += event.results[i][0].transcript;
       }
-      
-      const combinedTranscript = (finalTranscript + interimTranscript).trim();
-      
-      if (combinedTranscript) {
-        originalTextDiv.textContent = combinedTranscript;
-
-        // Translate text with debouncing
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-          const translated = await translateText(combinedTranscript, targetLangSelect.value);
-          if (translated) {
-            translatedTextDiv.textContent = translated;
-            // Speak the translated text if talkback is enabled
+    }
+    
+    // Mobile-specific processing
+    if (mobileDevice) {
+      // Only use final results on mobile
+      if (currentTranscript) {
+        finalTranscript += currentTranscript + ' ';
+        originalTextDiv.textContent = finalTranscript;
+        
+        const translated = await translateText(finalTranscript, targetLangSelect.value);
+        if (translated) {
+          translatedTextDiv.textContent = translated;
+          if (talkbackEnabled) {
             speakText(translated, targetLangSelect.value);
           }
-        }, 500);
-
-        // Fetch Wikipedia results only for final transcript
+        }
+        
         if (finalTranscript.trim().length > 2) {
           fetchWikiResults(finalTranscript.trim());
         }
       }
-    };
+    } 
+    // Desktop processing (original logic)
+    else {
+      const combinedTranscript = (finalTranscript + interimTranscript).trim();
+      if (combinedTranscript) {
+        originalTextDiv.textContent = combinedTranscript;
 
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      
-      const errorMessages = {
-        'not-allowed': 'Microphone access denied. Please allow microphone access and try again.',
-        'service-not-allowed': 'Speech recognition service is not allowed. Please check your browser settings.',
-        'network': 'Network error occurred. Please check your internet connection.',
-        'no-speech': 'No speech detected. Please try speaking closer to your microphone.',
-        'aborted': 'Speech recognition was aborted.',
-        'audio-capture': 'No microphone found. Please ensure your microphone is connected.',
-        'language-not-supported': 'Selected language is not supported for speech recognition.'
-      };
-      
-      const message = errorMessages[event.error] || `Speech recognition error: ${event.error}`;
-      
-      if (['not-allowed', 'service-not-allowed', 'audio-capture'].includes(event.error)) {
-        alert(message);
+        const translated = await translateText(combinedTranscript, targetLangSelect.value);
+        if (translated) {
+          translatedTextDiv.textContent = translated;
+          if (talkbackEnabled) {
+            speakText(translated, targetLangSelect.value);
+          }
+        }
+
+        if (finalTranscript.trim().length > 2) {
+          fetchWikiResults(finalTranscript.trim());
+        }
       }
-      
-      stopRecognition();
-    };
-
-    recognition.onend = () => {
-      updateUIForRecording(false);
-    };
-  }
-
-  function stopRecognition() {
-    if (recognition) {
-      recognition.stop();
     }
-    updateUIForRecording(false);
-  }
+    
+    isProcessing = false;
+    
+    // Restart recognition on mobile after processing
+    if (mobileDevice && isRecognizing) {
+      setTimeout(() => {
+        if (isRecognizing) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.log('Restart error:', e);
+          }
+        }
+      }, 100);
+    }
+  };
 
+  // Keep existing error and end handlers
+  recognition.onerror = (event) => {
+    // ... (keep your existing error handler)
+  };
+
+  recognition.onend = () => {
+    if (!mobileDevice || !isRecognizing) {
+      updateUIForRecording(false);
+    }
+  };
+}
+
+function stopRecognition() {
+  isRecognizing = false;
+  if (recognition) {
+    recognition.stop();
+  }
+  updateUIForRecording(false);
+}
   function updateUIForRecording(recording) {
     isRecognizing = recording;
     
