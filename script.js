@@ -13,7 +13,10 @@
   document.getElementById('gotItBtn').addEventListener('click', () => {
     document.getElementById('welcomeModal').style.display = 'none';
   });
-
+const editToggle = document.getElementById('editToggle');
+  const originalTextDisplay = document.getElementById('originalTextDisplay');
+  const originalTextEdit = document.getElementById('originalTextEdit');
+  const refreshTranslation = document.getElementById('refreshTranslation');
   const startBtn = document.getElementById('startBtn');
   const btnText = document.getElementById('btnText');
   const micIcon = document.getElementById('micIcon');
@@ -36,6 +39,56 @@
   speechSynthesis.onvoiceschanged = () => {
     voices = speechSynthesis.getVoices();
   };
+   editToggle.addEventListener('click', () => {
+    if (originalTextEdit.classList.contains('hidden')) {
+      // Switch to edit mode
+      originalTextDisplay.classList.add('hidden');
+      originalTextEdit.classList.remove('hidden');
+      originalTextEdit.value = originalTextDisplay.textContent.trim();
+      editToggle.textContent = 'Save Changes';
+      originalTextEdit.focus();
+    } else {
+      // Save changes and switch back to display mode
+      originalTextDisplay.classList.remove('hidden');
+      originalTextEdit.classList.add('hidden');
+      originalTextDisplay.textContent = originalTextEdit.value || '<span class="text-blue-200 italic">Start speaking to see your words appear here...</span>';
+      editToggle.textContent = 'Edit Text';
+      
+      // Auto-refresh translation if there's content
+      if (originalTextEdit.value.trim()) {
+        refreshTranslationFromEdit();
+      }
+    }
+  });
+
+  // Refresh translation from edited text
+  refreshTranslation.addEventListener('click', refreshTranslationFromEdit);
+
+  async function refreshTranslationFromEdit() {
+    const text = originalTextEdit.value.trim() || originalTextDisplay.textContent.trim();
+    if (!text || text.includes('Start speaking')) return;
+    
+    translatedTextDiv.innerHTML = '<span class="text-yellow-200 italic">Translating...</span>';
+    
+    const translated = await translateText(text, targetLangSelect.value);
+    if (translated) {
+      translatedTextDiv.textContent = translated;
+      if (talkbackEnabled) {
+        speakText(translated, targetLangSelect.value);
+      }
+    }
+    
+    // Refresh Wikipedia results
+    fetchWikiResults(text);
+  }
+
+  // Allow Enter key to save in edit mode
+  originalTextEdit.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      editToggle.click();
+    }
+  });
 
   // Clear all content
   clearBtn.addEventListener('click', () => {
