@@ -1,6 +1,6 @@
 # LinguaBridge - Real-time Speech Translation & Knowledge Discovery
-[fullscreen](https://linguabridge.netlify.app/screenshots/preview-image.png)
-![LinguaBridge Screenshot](https://linguabridge.netlify.app/screenshots/preview.gif)
+
+![LinguaBridge Screenshot](screenshots/preview.gif)
 
 A powerful web application that provides real-time speech translation and automatically discovers relevant Wikipedia knowledge based on your conversations.
 
@@ -25,9 +25,9 @@ A powerful web application that provides real-time speech translation and automa
 6. Toggle the **Talkback** switch to hear translations
 
 ## Screenshots
-[fullscreen](https://linguabridge.netlify.app/screenshots/preview-image-fullscreen.png)
-[features](https://linguabridge.netlify.app/screenshots/preview-image-features.png)
-[translation + search ](https://linguabridge.netlify.app/screenshots/preview-image-translation+search.png)
+![fullscreen](screenshots/preview-image-fullscreen.png)
+![features](screenshots/preview-image-features.png)
+![translation + search ](screenshots/preview-image-translation+search.png)
 
 
 ## Technologies Used
@@ -76,4 +76,5 @@ Developed by [Benjamin Sebastian](https://github.com/sebastianbenjamin)
 ---
 
 **Note**: This application uses third-party APIs (Google Translate, Wikipedia) which may have usage limitations.
+![fullscreen](screenshots/preview-image.png)
 
