@@ -70,4 +70,4 @@ Developed by [Benjamin Sebastian](https://github.com/sebastianbenjamin)
 ---
 
 **Note**: This application uses third-party APIs (Google Translate, Wikipedia) which may have usage limitations.
-```
+
