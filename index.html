@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LinguaBridge - Real-time Speech Translation & Knowledge Discovery</title>
+  <link rel="icon" href="https://img.icons8.com/fluency/48/000000/translation.png" type="image/x-icon">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .glass-effect { 
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .pulse-animation { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    .fade-in { animation: fadeIn 0.5s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .recording-indicator {
+      position: relative;
+      display: inline-block;
+    }
+    .recording-indicator::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -20px;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body class="min-h-screen gradient-bg">
+  
+  <!-- Welcome Modal -->
+  <div id="welcomeModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4" style="display: none;">
+    <div class="glass-effect rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-white">Welcome to LinguaBridge!</h2>
+        <button id="closeWelcome" class="text-white hover:text-yellow-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="space-y-4 text-blue-100">
+        <p>LinguaBridge is your real-time speech translation and knowledge discovery tool. Here's how to use it:</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Select your <strong>input</strong> and <strong>target</strong> languages</li>
+          <li>Click <strong>Start Speaking</strong> to begin recording</li>
+          <li>Your speech will be translated in real-time</li>
+          <li>Related Wikipedia articles will appear automatically</li>
+          <li>Use the <strong>Talkback</strong> toggle to hear translations (Experimental)</li>
+          <li>Press <strong>Ctrl+Space</strong> to start/stop recording</li>
+        </ul>
+        <div class="pt-4">
+          <button id="gotItBtn" class="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-300 transform hover:scale-105">
+            Got it, let's start!
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="w-full py-6 px-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">
+          <span class="bg-gradient-to-r from-yellow-200 to-yellow-400 bg-clip-text text-transparent">Lingua</span><span class="text-white">Bridge</span>
+        </h1>
+        <p class="text-blue-100 text-lg md:text-xl font-light">Real-time Speech Translation & Knowledge Discovery</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 pb-8">
+    
+    <!-- Control Panel -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      
+      <!-- Language Settings -->
+      <div class="lg:col-span-2 glass-effect rounded-2xl p-6 shadow-xl">
+        <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+          </svg>
+          Language Configuration
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label for="sourceLang" class="block text-sm font-medium text-blue-100">Input Language</label>
+            <select id="sourceLang" class="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200">
+             <optgroup label="Indian Languages">
+                <option value="hi" class="bg-gray-800 text-white">हिंदी (Hindi)</option>
+                <option value="bn" class="bg-gray-800 text-white">বাংলা (Bengali)</option>
+                <option value="te" class="bg-gray-800 text-white">తెలుగు (Telugu)</option>
+                <option value="mr" class="bg-gray-800 text-white">मराठी (Marathi)</option>
+                <option value="ta" class="bg-gray-800 text-white">தமிழ் (Tamil)</option>
+                <option value="gu" class="bg-gray-800 text-white">ગુજરાતી (Gujarati)</option>
+                <option value="kn" class="bg-gray-800 text-white">ಕನ್ನಡ (Kannada)</option>
+                <option value="ml" class="bg-gray-800 text-white">മലയാളം (Malayalam)</option>
+                <option value="or" class="bg-gray-800 text-white">ଓଡ଼ିଆ (Odia)</option>
+                <option value="pa" class="bg-gray-800 text-white">ਪੰਜਾਬੀ (Punjabi)</option>
+                <option value="as" class="bg-gray-800 text-white">অসমীয়া (Assamese)</option>
+              </optgroup>
+              <optgroup label="International Languages" class="bg-gray-800 text-white">
+                <option value="en" class="bg-gray-800 text-white" selected>English</option>
+                <option value="es" class="bg-gray-800 text-white">Español (Spanish)</option>
+                <option value="fr" class="bg-gray-800 text-white">Français (French)</option>
+                <option value="de" class="bg-gray-800 text-white">Deutsch (German)</option>
+                <option value="it" class="bg-gray-800 text-white">Italiano (Italian)</option>
+                <option value="pt" class="bg-gray-800 text-white">Português (Portuguese)</option>
+                <option value="ru" class="bg-gray-800 text-white">Русский (Russian)</option>
+                <option value="ja" class="bg-gray-800 text-white">日本語 (Japanese)</option>
+                <option value="ko" class="bg-gray-800 text-white">한국어 (Korean)</option>
+                <option value="zh" class="bg-gray-800 text-white">中文 (Chinese)</option>
+                <option value="ar" class="bg-gray-800 text-white">العربية (Arabic)</option>
+              </optgroup>
+            </select>
+            
+          </div>
+          
+          <div class="space-y-2">
+            <label for="targetLang" class="block text-sm font-medium text-blue-100">Target Language</label>
+            <select id="targetLang" class="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200">
+             <optgroup label="Indian Languages">
+                <option value="hi" class="bg-gray-800 text-white">हिंदी (Hindi)</option>
+                <option value="bn" class="bg-gray-800 text-white">বাংলা (Bengali)</option>
+                <option value="te" class="bg-gray-800 text-white">తెలుగు (Telugu)</option>
+                <option value="mr" class="bg-gray-800 text-white">मराठी (Marathi)</option>
+                <option value="ta" class="bg-gray-800 text-white">தமிழ் (Tamil)</option>
+                <option value="gu" class="bg-gray-800 text-white">ગુજરાતી (Gujarati)</option>
+                <option value="kn" class="bg-gray-800 text-white">ಕನ್ನಡ (Kannada)</option>
+                <option value="ml" class="bg-gray-800 text-white">മലയാളം (Malayalam)</option>
+                <option value="or" class="bg-gray-800 text-white">ଓଡ଼ିଆ (Odia)</option>
+                <option value="pa" class="bg-gray-800 text-white">ਪੰਜਾਬੀ (Punjabi)</option>
+                <option value="as" class="bg-gray-800 text-white">অসমীয়া (Assamese)</option>
+              </optgroup>
+              <optgroup label="International Languages" class="bg-gray-800 text-white">
+                <option value="en" class="bg-gray-800 text-white" selected>English</option>
+                <option value="es" class="bg-gray-800 text-white">Español (Spanish)</option>
+                <option value="fr" class="bg-gray-800 text-white">Français (French)</option>
+                <option value="de" class="bg-gray-800 text-white">Deutsch (German)</option>
+                <option value="it" class="bg-gray-800 text-white">Italiano (Italian)</option>
+                <option value="pt" class="bg-gray-800 text-white">Português (Portuguese)</option>
+                <option value="ru" class="bg-gray-800 text-white">Русский (Russian)</option>
+                <option value="ja" class="bg-gray-800 text-white">日本語 (Japanese)</option>
+                <option value="ko" class="bg-gray-800 text-white">한국어 (Korean)</option>
+                <option value="zh" class="bg-gray-800 text-white">中文 (Chinese)</option>
+                <option value="ar" class="bg-gray-800 text-white">العربية (Arabic)</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Button -->
+      <div class="glass-effect rounded-2xl p-6 shadow-xl flex flex-col justify-center">
+        <button id="startBtn" class="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
+          <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+          </svg>
+          <span id="btnText">Start Speaking</span>
+        </button>
+        
+        <div id="statusIndicator" class="mt-4 text-center text-blue-100 text-sm opacity-0 transition-opacity duration-300">
+          <span class="recording-indicator">Recording...</span>
+        </div>
+
+        <div class="mt-4 flex justify-between items-center">
+          <button id="clearBtn" class="text-sm bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-xl transition duration-200">
+            Clear All
+          </button>
+          
+          <div class="flex items-center space-x-2">
+            <span class="text-sm text-blue-100">Talkback</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input id="talkbackToggle" type="checkbox" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      
+      <!-- Translation Results -->
+      <div class="space-y-6">
+        <!-- Original Text -->
+        <div class="glass-effect rounded-2xl p-6 shadow-xl">
+          <div class="flex items-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-200 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1.586l-4 4z" />
+            </svg>
+            <h3 class="text-lg font-semibold text-white">Original Speech</h3>
+          </div>
+          <div id="originalText" class="bg-white/10 rounded-xl p-4 min-h-[100px] text-white text-base leading-relaxed border border-white/20">
+            <span class="text-blue-200 italic">Start speaking to see your words appear here...</span>
+          </div>
+        </div>
+
+        <!-- Translated Text -->
+        <div class="glass-effect rounded-2xl p-6 shadow-xl">
+          <div class="flex items-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <h3 class="text-lg font-semibold text-white">Translation</h3>
+          </div>
+          <div id="translatedText" class="bg-white/10 rounded-xl p-4 min-h-[100px] text-white text-base leading-relaxed border border-white/20">
+            <span class="text-yellow-200 italic">Translation will appear here...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wikipedia Search Results -->
+      <div class="glass-effect rounded-2xl p-6 shadow-xl">
+        <div class="flex items-center mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-300 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <h3 class="text-lg font-semibold text-white">Knowledge Discovery</h3>
+        </div>
+        <div id="searchResults" class="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+          <div class="text-green-200 italic text-center py-8">
+            Speak to discover related Wikipedia articles...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="glass-effect rounded-xl p-6 text-center">
+        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h4 class="text-white font-semibold mb-2">Real-time Processing</h4>
+        <p class="text-blue-100 text-sm">Instant speech recognition and translation as you speak</p>
+      </div>
+      
+      <div class="glass-effect rounded-xl p-6 text-center">
+        <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
+          </svg>
+        </div>
+        <h4 class="text-white font-semibold mb-2">Multi-language Support</h4>
+        <p class="text-blue-100 text-sm">Support for 12+ languages with high accuracy</p>
+      </div>
+      
+      <div class="glass-effect rounded-xl p-6 text-center">
+        <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.168 18.477 18.582 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <h4 class="text-white font-semibold mb-2">Knowledge Integration</h4>
+        <p class="text-blue-100 text-sm">Automatic Wikipedia search for contextual information</p>
+      </div>
+    </div>
+
+    <!-- Credits Section -->
+    <div class="mt-12 glass-effect rounded-2xl p-6">
+      <div class="text-center text-blue-100 text-sm">
+        <p>© 2025 Benjamin Sebastian | 
+          <a href="https://github.com/sebastianbenjamin" target="_blank" class="hover:text-white underline">GitHub</a> | 
+          <a href="https://linkedin.com/in/sebastianbenjamin" target="_blank" class="hover:text-white underline">LinkedIn</a>
+        </p>
+        <div class="mt-4 text-xs opacity-80">
+          <p>This application uses the following APIs:</p>
+          <ul class="flex flex-wrap justify-center gap-2 mt-2">
+            <li>• Web Speech API</li>
+            <li>• Google Translate API</li>
+            <li>• Wikipedia API</li>
+          </ul>
+        </div>
+        <div class="mt-4 text-xs opacity-60">
+          <p>Favicon by <a href="https://icons8.com" target="_blank" class="hover:text-white underline">Icons8</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  </style>
+
+<script src="./script.js"></script>
+</body>
+</html>
